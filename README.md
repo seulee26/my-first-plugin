@@ -1,62 +1,145 @@
 # my-first-plugin
 
-A Claude Code plugin: Korean daily retrospective & next-day planning agent team, with **optional** Google Calendar integration that uses **each user's own** Google account via Claude.ai's Google Calendar Connector. No API keys. No shared credentials. Nothing leaves your Claude session.
+> 클로드 코드(Claude Code)에 깔아두면, **"오늘 뭐 했지"** 자유롭게 적기만 해도 **하루 회고**랑 **내일 할 일 계획**을 한국어로 정리해주는 도우미.
+> 원하면 **본인 구글 캘린더**랑도 연결돼서, 내일 일정 비어있는 시간에 자동으로 작업 시간을 잡아준다.
 
-> 한국어 일일 회고 & 다음 날 플래닝을 위한 Claude Code 플러그인. 구글 캘린더 연동은 선택이고, **각 사용자가 자기 구글 계정을 직접 연결**하는 방식이다 (API 키 없음, 자격증명 공유 없음).
+---
 
-## What you get
+## 이 플러그인이 해주는 일
 
-- **4 subagents** — `daily-summary` → `blocker-resolver` → `task-breaker` → `schedule-writer` (optional)
-- **3 skills** — `calendar-context`, `daily-log`, `next-day-priority`
-- **1 slash command** — `/daily`
-- **2 hooks** — `SessionStart` reminder, `UserPromptSubmit` hint
+`/daily` 라고 한 줄 치고 오늘 한 일을 줄줄 적으면, 다음 4가지를 차례대로 해준다:
 
-## Install (Claude Code)
+1. **오늘 한 일 요약** — 성과 3줄로 압축
+2. **걸리는 것 짚기** — 끝내지 못했거나 리스크인 것 2가지
+3. **내일 1순위** — 내일 가장 먼저 할 일 1가지 + 30분 단위 실행 계획
+4. **(원하면) 캘린더에 자동 등록** — 위에서 만든 30분 단위 계획을 본인 구글 캘린더 내일자에 자동으로 박아줌
 
-```text
+칭찬·격려·이모지 없이 **실무자 톤**으로만 답한다. 시간 아끼려고 만든 거다.
+
+---
+
+## 어떤 식으로 동작하는지 (예시)
+
+**나:**
+```
+/daily 오늘 회의 3개, 신제품 가격표 v2 합의, 마케팅 카피 시안 2개 보냈고 답 못 받음. 
+결제 API 연동은 토큰 만료 처리 막혀서 멈춤. 
+내일 발표자료 초안 끝내야 함.
+```
+
+**플러그인이 답하는 흐름:**
+```
+[캘린더] 내일 일정: 14:00–15:00 팀 미팅 / 빈 슬롯: 09:00–12:00, 15:00–18:00
+
+### 오늘의 성과 요약
+- 가격표 v2 합의 완료
+- 마케팅 카피 시안 2건 발송
+- 회의 3건 진행
+
+### 걸리는 것
+- 결제 API 토큰 만료 처리 — 외부 SDK 동작 불명확
+- 카피 시안 피드백 미수신 — 마케팅팀 응답 지연
+
+### 내일 1순위
+- 발표자료 초안 완성
+- 근거: 모레 임원 리뷰 일정 확정됨
+
+### 30분 단위 계획 (내일)
+| # | 시간 | 할 일 |
+|---|------|------|
+| 1 | 09:00–09:30 | 목차 확정 |
+| 2 | 09:30–10:00 | 시장 데이터 슬라이드 |
+| ... | | |
+```
+
+여기서 "**캘린더에 박아줘**" 라고 한 마디 더 하면, 내일 캘린더에 위 30분 블록들을 실제로 등록해준다 (등록 전에 미리 확인은 받음).
+
+---
+
+## 설치 방법
+
+### 준비물
+- **Claude Code**가 본인 컴퓨터에 깔려있어야 한다.
+  (없으면: https://claude.com/claude-code)
+
+### 두 줄로 끝
+Claude Code 안에서 아래 두 줄을 친다.
+
+```
 /plugin marketplace add seulee26/my-first-plugin
 /plugin install my-first-plugin@my-first-plugin
 ```
 
-That's it — restart Claude Code if needed, then run `/daily` to try it.
+설치되면 `/daily` 라고 쳐서 바로 써볼 수 있다.
 
-## Connect your own Google Calendar (optional)
+---
 
-This plugin **does not** ship with any Google credentials. It just *uses* the Google Calendar tools if you've connected your own Google account to Claude. To enable it:
+## 구글 캘린더 연결 (원하는 사람만)
 
-1. Open **Claude.ai** in your browser → click your profile → **Connectors** (or **Settings → Connectors**).
-2. Find **Google Calendar** and click **Connect**.
-3. Sign in with **your own Google account** and grant access.
-4. That's it. Claude Code now sees Google Calendar tools (`mcp__claude_ai_Google_Calendar__*`) inside your session, and this plugin will use them.
+> ⚠️ **중요**: 이 플러그인은 **본인 캘린더**만 본다. 다른 사람 캘린더는 절대 안 보이고, 만든 사람(나)의 캘린더도 안 보인다. 비밀번호나 API 키 같은 것도 입력 안 한다.
 
-If you skip this step, the plugin still works — it just runs without calendar context (the `calendar-context` skill silently no-ops, `schedule-writer` won't be invoked).
+### 연결하는 법 (5분)
+1. 브라우저에서 **claude.ai** 접속 → 로그인
+2. 우측 상단 프로필 클릭 → **Connectors** (또는 **설정 → Connectors**) 클릭
+3. 목록에서 **Google Calendar** 찾기 → **Connect** 버튼
+4. **본인 구글 계정**으로 로그인하고 권한 허용
+5. 끝. Claude Code 다시 켜면 끝
 
-If you ever see a permission error, the plugin will tell you to "re-authenticate Google Calendar in Claude.ai → Connectors". It will never ask for an API key.
+### 연결을 안 하면?
+괜찮다. 캘린더 단계만 자동으로 건너뛰고 회고/플래닝은 그대로 동작한다.
 
-## Usage
+### 권한 오류가 뜨면?
+같은 자리에서 **Disconnect** 한 번 누르고 **Connect** 다시 누르면 된다. 플러그인은 비밀번호를 모른다.
 
-```text
-/daily 오늘 한 일을 자유서술로 적어줘. 회의도 결정도 결과도.
-```
+---
 
-The flow:
+## 자주 쓰는 명령
 
-1. **`calendar-context` skill** — pulls today's events + tomorrow's events + tomorrow's free slots from *your* calendar.
-2. **`daily-summary` agent** — outputs (성과 3줄 / 걸리는 것 2가지 / 내일 1순위 1가지).
-3. **`blocker-resolver` agent** — proposes 2~3 resolution options per blocker.
-4. **`task-breaker` agent** — breaks tomorrow's #1 task into 30-minute steps, slotted into your calendar's free time.
-5. **`schedule-writer` agent** *(only when you say "캘린더에 등록해")* — dry-runs the schedule, asks for confirmation, then creates the events.
+| 입력 | 의미 |
+|------|------|
+| `/daily 오늘 한 일...` | 전체 흐름 (캘린더 → 회고 → 블로커 → 내일 계획) |
+| 회고 후 `캘린더에 박아줘` | 내일 30분 단위 계획을 실제 구글 캘린더에 등록 |
+| 회고 후 `저장해` | 내일 1순위를 로컬에 저장. 다음에 Claude Code 켜면 알려줌 |
+| `요약만` / `블로커만` | 거기까지만 하고 멈춤 |
+| `캘린더 빼` | 캘린더 단계 건너뛰기 |
 
-You can stop at any step ("요약만", "블로커만", "캘린더 빼") or skip Google Calendar entirely.
+---
 
-## Privacy & data flow
+## 자주 묻는 질문
 
-- **Plugin contains no user data.** This repository ships only agent/skill/hook definitions.
-- **Calendar access is your account only.** Authentication happens once in Claude.ai (OAuth in your browser). The plugin cannot impersonate other users or share access between accounts.
-- **No API key, no service account, no third-party server.** All Google Calendar calls are performed by Claude itself through the Connector you authorize.
-- **Local-only state.** The optional `~/.claude-daily/tomorrow.md` file (used by the `SessionStart` hook to remind you of yesterday's planned #1 task) lives only on your machine.
+**Q. 내 구글 계정 정보가 만든 사람한테 가나요?**
+A. 안 갑니다. 인증은 클로드(claude.ai)랑 사용자 본인 사이에서만 이루어지고, 플러그인은 그 권한을 빌려 쓸 뿐입니다. 만든 사람 서버는 없고, 토큰도 안 봅니다.
 
-## Directory layout
+**Q. 무료인가요?**
+A. 플러그인 자체는 무료(MIT 라이선스). 단, Claude Code 자체는 Anthropic 계정/요금제가 필요합니다.
+
+**Q. API 키 발급받아야 하나요?**
+A. 안 받아도 됩니다. 이 플러그인은 API 키를 안 씁니다.
+
+**Q. 설치한 다음 Claude Code 어디서 명령 쳐요?**
+A. Claude Code 채팅창에 그냥 `/daily` 라고 치고 엔터.
+
+**Q. 다른 사람한테 추천하고 싶어요.**
+A. 이 깃허브 주소 (https://github.com/seulee26/my-first-plugin) 만 보내주면 위 두 줄로 본인 컴퓨터에 깝니다.
+
+**Q. 한국어 말고 다른 언어로도 되나요?**
+A. 현재는 한국어 출력만 지원합니다.
+
+**Q. 데이터가 어디 저장되나요?**
+A. 어디에도 안 보냅니다. 회고 내용도 본인 Claude 세션 안에서만 처리되고, "내일 1순위 저장해" 했을 때만 본인 컴퓨터의 `~/.claude-daily/tomorrow.md` 파일에 한 줄 적힙니다.
+
+---
+
+## 개인정보 / 보안 요약
+
+- 이 깃허브 저장소엔 **사용자 데이터가 0건**. 코드 정의 파일들만 있다.
+- 캘린더 권한은 **사용자 본인 계정 한정**. 만든 사람 포함 누구도 다른 사용자 캘린더 못 본다.
+- **API 키, 서비스 계정, 외부 서버 없음**. 모든 캘린더 호출은 Claude가 사용자가 허락한 권한으로 직접 한다.
+- 로컬 파일은 본인 컴퓨터에만 (`~/.claude-daily/tomorrow.md`).
+
+---
+
+## 디렉터리 구조 (개발자용)
 
 ```
 my-first-plugin/
@@ -81,6 +164,6 @@ my-first-plugin/
     └── hooks.json
 ```
 
-## License
+## 라이선스
 
-MIT — see [LICENSE](./LICENSE).
+MIT — 자유롭게 쓰세요. ([LICENSE](./LICENSE))

@@ -1,0 +1,17 @@
+{
+  "name": "my-first-plugin",
+  "owner": {
+    "name": "seulee26",
+    "url": "https://github.com/seulee26"
+  },
+  "plugins": [
+    {
+      "name": "my-first-plugin",
+      "source": "./",
+      "description": "Korean daily retrospective & next-day planning agent team. Optional Google Calendar integration via the user's own Claude.ai Google Calendar Connector — no API keys, no shared credentials.",
+      "version": "0.1.0",
+      "category": "productivity",
+      "keywords": ["daily", "retro", "planning", "korean", "google-calendar"]
+    }
+  ]
+}

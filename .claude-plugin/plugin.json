@@ -1,0 +1,13 @@
+{
+  "name": "my-first-plugin",
+  "version": "0.1.0",
+  "description": "Korean daily retrospective & next-day planning agent team for Claude Code. Optionally integrates with the user's own Google Calendar via Claude.ai's Google Calendar Connector.",
+  "author": {
+    "name": "seulee26",
+    "url": "https://github.com/seulee26"
+  },
+  "homepage": "https://github.com/seulee26/my-first-plugin",
+  "repository": "https://github.com/seulee26/my-first-plugin",
+  "license": "MIT",
+  "keywords": ["daily", "retro", "planning", "korean", "productivity", "google-calendar"]
+}

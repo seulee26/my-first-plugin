@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=\"$HOME/.claude-daily/tomorrow.md\"; if [ -s \"$f\" ]; then printf '# 어제 적어둔 내일 1순위\\n\\n'; cat \"$f\"; fi"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "p=\"$CLAUDE_USER_PROMPT\"; case \"$p\" in *오늘*한*일*|*데일리*회고*|*하루*정리*|*내일*뭐*부터*|*내일*우선순위*) printf '[my-first-plugin 힌트] /daily 슬래시 커맨드로 회고→블로커→내일 분해까지 한 번에 처리할 수 있다.\\n' ;; esac"
+          }
+        ]
+      }
+    ]
+  }
+}

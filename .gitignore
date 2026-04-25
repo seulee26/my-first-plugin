@@ -1,0 +1,10 @@
+.DS_Store
+.idea/
+.vscode/
+*.log
+node_modules/
+
+# Local state files this plugin may create at runtime on a user's machine.
+# Should never be committed to the plugin repo.
+.claude-daily/
+tomorrow.md
